@@ -1,0 +1,142 @@
+:root {
+    --bs-primary: #1e3a8a; /* Deep blue */
+    --bs-secondary: #f97316; /* Orange */
+    --bs-light: #f8fafc;
+    --bs-dark: #0f172a;
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Make sure the navbar wrapper takes full width and resets flex behavior if parent is flex */
+.bs-navbar-wrapper {
+    width: 100%;
+    font-family: var(--font-main);
+    flex-shrink: 0;
+    z-index: 1000;
+}
+
+.bs-topbar {
+    background-color: var(--bs-primary);
+    color: white;
+    font-size: 0.85rem;
+    padding: 0.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.bs-topbar-left, .bs-topbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.bs-topbar span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bs-header {
+    background-color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: relative;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.bs-logo img {
+    height: 60px;
+    object-fit: contain;
+}
+
+.bs-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.bs-nav a {
+    text-decoration: none;
+    color: var(--bs-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+.bs-nav a:hover {
+    color: var(--bs-secondary);
+}
+
+.bs-footer {
+    width: 100%;
+    background-color: #f1f5f9;
+    color: #334155;
+    padding: 4rem 2rem 2rem;
+    margin-top: auto;
+    font-family: var(--font-main);
+    flex-shrink: 0;
+}
+
+.bs-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.bs-footer-col h3 {
+    color: var(--bs-primary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.bs-footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bs-footer-col ul li {
+    margin-bottom: 0.75rem;
+}
+
+.bs-footer-col ul li a {
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.bs-footer-col ul li a:hover {
+    color: var(--bs-secondary);
+}
+
+.bs-footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid #cbd5e1;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+@media (max-width: 768px) {
+    .bs-header {
+        flex-direction: column;
+        align-items: center;
+    }
+    .bs-nav {
+        justify-content: center;
+    }
+    .bs-topbar {
+        justify-content: center;
+    }
+}

@@ -1,0 +1,308 @@
+:root {
+    --bg-color: #0f172a;
+    --text-color: #e2e8f0;
+    --accent-color: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.5);
+    
+    --frame-dark: #1f140d;
+    --frame-light: #4a2e1b;
+    --frame-border: #6d4223;
+    
+    --bead-color: #f59e0b;
+    --bead-shadow: #b45309;
+    --bead-highlight: #fde68a;
+    
+    --rod-color: #94a3b8;
+    --rod-shadow: #334155;
+    
+    --reckoning-bar: #3d2516;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at center, #1e293b 0%, var(--bg-color) 100%);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    padding: 40px;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transform: scale(0.8);
+    transform-origin: top center;
+}
+
+.app-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px var(--accent-glow);
+    text-transform: uppercase;
+}
+
+.display-container {
+    background: #020617;
+    border: 2px solid #1e293b;
+    border-radius: 12px;
+    padding: 15px 40px;
+    min-width: 300px;
+    text-align: right;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 15px var(--accent-glow);
+    position: relative;
+    overflow: hidden;
+}
+
+.display-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.2) 100%);
+    pointer-events: none;
+}
+
+.display-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-glow);
+    letter-spacing: 0.05em;
+}
+
+.reset-button {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    color: #94a3b8;
+    border: 1px solid #334155;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.5), -2px -2px 10px rgba(255,255,255,0.05);
+}
+
+.reset-button:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px var(--accent-glow), inset 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.reset-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 5px var(--accent-glow);
+}
+
+.abacus-section {
+    perspective: 1000px;
+}
+
+.abacus-frame {
+    position: relative;
+    background: linear-gradient(to right, var(--frame-dark), var(--frame-light), var(--frame-dark));
+    border: 16px solid var(--frame-border);
+    border-radius: 12px;
+    padding: 10px 20px;
+    box-shadow: 
+        inset 0 0 30px rgba(0,0,0,0.8),
+        0 20px 40px rgba(0,0,0,0.8),
+        0 0 0 2px #26160d;
+    transform-style: preserve-3d;
+    transform: rotateX(5deg);
+}
+
+/* Wood grain effect */
+.frame-texture {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.15;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        #000 5px,
+        #000 10px
+    );
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+.reckoning-bar {
+    position: absolute;
+    top: 32%; /* Positioned above middle to give space for 4 lower beads */
+    left: -16px;
+    right: -16px;
+    height: 18px;
+    background: linear-gradient(to bottom, #5a3821, #2e1a0d);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.1);
+    z-index: 10;
+    border-top: 1px solid #7d4d2f;
+    border-bottom: 1px solid #1a0e07;
+}
+
+/* Unit dots to indicate the decimal place */
+.unit-dot {
+    position: absolute;
+    top: 32%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #fef08a;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #fef08a, inset 0 -1px 2px rgba(0,0,0,0.5);
+    z-index: 12;
+}
+
+.rods-container {
+    display: flex;
+    gap: 30px;
+    position: relative;
+    z-index: 5;
+}
+
+.rod {
+    position: relative;
+    width: 65px;
+    height: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* The vertical stick */
+.rod-stick {
+    position: absolute;
+    top: -10px;
+    bottom: -10px;
+    width: 10px;
+    background: linear-gradient(to right, var(--rod-shadow), var(--rod-color), var(--rod-shadow));
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.8), 2px 0 5px rgba(0,0,0,0.4);
+    z-index: 1;
+}
+
+/* Deck areas */
+.deck {
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.upper-deck {
+    height: 32%; /* Matches reckoning bar top */
+    justify-content: flex-start;
+    padding-top: 10px;
+}
+
+.lower-deck {
+    height: 68%; /* Below reckoning bar */
+    justify-content: flex-end;
+    padding-bottom: 10px;
+}
+
+.bead {
+    width: 57px;
+    height: 34px;
+    background: linear-gradient(to bottom, var(--bead-shadow) 0%, var(--bead-color) 20%, var(--bead-highlight) 48%, var(--bead-color) 52%, var(--bead-shadow) 100%);
+    clip-path: polygon(0% 50%, 50% 0%, 100% 50%, 50% 100%);
+    filter: drop-shadow(0 5px 4px rgba(0,0,0,0.6));
+    cursor: pointer;
+    position: absolute;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s;
+    z-index: 3;
+}
+
+.bead:hover {
+    filter: brightness(1.2) drop-shadow(0 6px 6px rgba(0,0,0,0.8));
+}
+
+.bead:active {
+    transition: transform 0.1s ease-out;
+}
+
+/* Positioning upper bead */
+.bead.upper {
+    top: 15px; /* Inactive position */
+}
+
+/* Active position for upper bead (moved down) */
+.bead.upper.active {
+    transform: translateY(90px);
+}
+
+/* Positioning lower beads */
+.bead.lower {
+    /* Base spacing from the bottom of the lower deck */
+}
+
+.bead.lower[data-index="0"] { bottom: 15px; }
+.bead.lower[data-index="1"] { bottom: 50px; } 
+.bead.lower[data-index="2"] { bottom: 85px; } 
+.bead.lower[data-index="3"] { bottom: 120px; } 
+
+/* Active positions for lower beads (moved up) */
+.bead.lower.active[data-index="0"] { transform: translateY(-130px); }
+.bead.lower.active[data-index="1"] { transform: translateY(-130px); }
+.bead.lower.active[data-index="2"] { transform: translateY(-130px); }
+.bead.lower.active[data-index="3"] { transform: translateY(-130px); }
+
+/* Note: we use transform for animations, but the math for distance to reckoning bar is about 110px from the bottom resting position. */
+
+/* Small screen adjustments */
+@media (max-width: 800px) {
+    .app-wrapper {
+        transform: scale(0.8);
+    }
+}
+
+@media (max-width: 500px) {
+    .app-wrapper {
+        transform: scale(0.6);
+        padding: 20px;
+    }
+}

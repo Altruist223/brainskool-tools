@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login.html';
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Brainskool Abacus Simulator">
+    <title>Brainskool Abacus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Brainskool Shared Header -->
+    <nav class="bs-navbar-wrapper">
+        <div class="bs-topbar">
+            <div class="bs-topbar-left">
+                <span>📞 +91-8094642826</span>
+                <span>✉️ info@brainskool.in</span>
+            </div>
+            <div class="bs-topbar-right">
+                <span>📍 Jaipur, Rajasthan</span>
+            </div>
+        </div>
+        <div class="bs-header">
+            <a href="../index.html" class="bs-logo">
+                <img src="https://brainskool.in/wp-content/uploads/2022/11/bs-logo-e1669098799830-2048x503-1.png" alt="BrainSkool India">
+            </a>
+            <div class="bs-nav">
+                <a href="../index.html">Home</a>
+                <a href="https://brainskool.in/about-us/">About Us</a>
+                <a href="https://brainskool.in/">Courses</a>
+                <a href="https://brainskool.in/student-enquiry-form/">Student Form</a>
+                <a href="https://brainskool.in/franchise/">Franchise</a>
+                <a href="https://brainskool.in/gallery/">Gallery</a>
+                <a href="https://brainskool.in/contact-us/">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="app-wrapper">
+        <header class="app-header">
+            <h1 class="title">Brainskool</h1>
+            <div class="display-container">
+                <div class="display-value" id="total-value">0</div>
+            </div>
+            <button class="reset-button" id="reset-button">
+                <span>Reset</span>
+            </button>
+        </header>
+
+        <main class="abacus-section">
+            <div class="abacus-frame">
+                <!-- Wood grain texture layer -->
+                <div class="frame-texture"></div>
+                
+                <div class="reckoning-bar">
+                    <!-- Dots on the reckoning bar (unit dots) -->
+                    <div class="unit-dot dot-1"></div>
+                    <div class="unit-dot dot-2"></div>
+                </div>
+
+                <div class="rods-container" id="rods-container">
+                    <!-- Rods will be injected here by script.js -->
+                </div>
+            </div>
+        </main>
+        </div>
+    </main>
+
+    <!-- Brainskool Shared Footer -->
+    <footer class="bs-footer">
+        <div class="bs-footer-grid">
+            <div class="bs-footer-col">
+                <h3>About Us</h3>
+                <p style="color: #475569; line-height: 1.6; font-size: 0.95rem;">Brain Skool is a professionally managed institute that focuses on building and nurturing talent. We offer a research-based scientifically designed holistic course curriculum that enables a child to imagine and innovate.</p>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Courses</h3>
+                <ul>
+                    <li><a href="https://brainskool.in/vedic-math-classes/">Vedic Math</a></li>
+                    <li><a href="https://brainskool.in/abacus-classes/">Abacus</a></li>
+                    <li><a href="https://brainskool.in/memory-science-classes/">Memory Science</a></li>
+                    <li><a href="https://brainskool.in/coding-classes/">Coding</a></li>
+                    <li><a href="https://brainskool.in/robotics-classes/">Robotics</a></li>
+                </ul>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="https://brainskool.in/about-us/">About Us</a></li>
+                    <li><a href="https://brainskool.in/student-enquiry-form/">Student Form</a></li>
+                    <li><a href="https://brainskool.in/franchise/">Franchise Enquiry</a></li>
+                    <li><a href="https://brainskool.in/contact-us/">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Connect With Us</h3>
+                <ul>
+                    <li>📞 +91-8094642826</li>
+                    <li>✉️ info@brainskool.in</li>
+                    <li>📍 Jaipur, Rajasthan</li>
+                </ul>
+            </div>
+        </div>
+        <div class="bs-footer-bottom">
+            Copyright &copy; BrainSkool. All rights reserved
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

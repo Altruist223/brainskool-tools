@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login – Brainskool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30,58,138,0.5) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 110%, rgba(249,115,22,0.15) 0%, transparent 60%);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            padding: 3rem 2.5rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6);
+            animation: slideUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .logo-wrap {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-wrap img {
+            height: 40px;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+        }
+
+        .shield {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+        }
+
+        h1 {
+            color: #f8fafc;
+            font-size: 1.75rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.25s;
+        }
+
+        input::placeholder { color: #475569; }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.08);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.01em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(37,99,235,0.45);
+        }
+
+        .btn:active { transform: translateY(0); }
+
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .error {
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo-wrap">
+            <img src="https://brainskool.in/wp-content/uploads/2022/11/bs-logo-e1669098799830-2048x503-1.png" alt="Brainskool">
+        </div>
+        <div class="shield">🛡️</div>
+        <h1>Admin Portal</h1>
+        <p class="subtitle">Restricted access — authorised personnel only</p>
+
+        <div id="errorMsg" class="error"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter admin username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn" id="submitBtn">Sign In as Admin</button>
+        </form>
+        <div style="text-align:center; margin-top:1.25rem;">
+            <a href="/admin-reset.html" style="color:#64748b; font-size:0.85rem; text-decoration:none;">
+                🔑 Forgot password? Reset it here
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // If already logged in as admin, go straight to dashboard
+        const existingToken = localStorage.getItem('token');
+        const existingUser  = localStorage.getItem('user');
+        if (existingToken && existingUser) {
+            const u = JSON.parse(existingUser);
+            if (u.role === 'admin') window.location.href = '/admin.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn      = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Signing in…';
+
+            try {
+                const res  = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value.trim(),
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errorMsg.textContent = data.error || 'Login failed';
+                    errorMsg.style.display = 'block';
+                } else if (data.user.role !== 'admin') {
+                    errorMsg.textContent = 'This login is for admins only.';
+                    errorMsg.style.display = 'block';
+                } else {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = '/admin.html';
+                }
+            } catch {
+                errorMsg.textContent = 'Network error. Is the server running?';
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In as Admin';
+            }
+        });
+    </script>
+</body>
+</html>

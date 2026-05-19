@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainskool Interactive Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .landing-main {
+            flex: 1;
+            padding: 6rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .hero-section p {
+            font-size: 1.25rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .cards-container {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            width: 380px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out both;
+        }
+
+        .tool-card:nth-child(1) { animation-delay: 0.2s; }
+        .tool-card:nth-child(2) { animation-delay: 0.4s; }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30,58,138,0.03) 0%, rgba(249,115,22,0.03) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 100px;
+            height: 100px;
+            background: #f1f5f9;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            color: #1e3a8a;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .tool-card h2 {
+            font-size: 1.75rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-card p {
+            color: #64748b;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 { font-size: 2.5rem; }
+            .tool-card { width: 100%; max-width: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Brainskool Shared Header -->
+    <nav class="bs-navbar-wrapper">
+        <div class="bs-topbar">
+            <div class="bs-topbar-left">
+                <span>📞 +91-8094642826</span>
+                <span>✉️ info@brainskool.in</span>
+            </div>
+            <div class="bs-topbar-right">
+                <span>📍 Jaipur, Rajasthan</span>
+            </div>
+        </div>
+        <div class="bs-header">
+            <a href="/" class="bs-logo">
+                <img src="https://brainskool.in/wp-content/uploads/2022/11/bs-logo-e1669098799830-2048x503-1.png" alt="BrainSkool India">
+            </a>
+            <div class="bs-nav">
+                <a href="/">Home</a>
+                <a href="https://brainskool.in/about-us/">About Us</a>
+                <a href="https://brainskool.in/">Courses</a>
+                <a href="https://brainskool.in/student-enquiry-form/">Student Form</a>
+                <a href="https://brainskool.in/franchise/">Franchise</a>
+                <a href="https://brainskool.in/gallery/">Gallery</a>
+                <a href="https://brainskool.in/contact-us/">Contact Us</a>
+                <div id="authLinks" style="display: inline-block;">
+                    <a href="/login.html" style="font-weight: 600; color: #2563eb;">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="landing-main">
+        <div class="hero-section">
+            <h1>Interactive Learning Tools</h1>
+            <p>Explore our suite of interactive tools designed to make skill development engaging, fun, and effective for kids.</p>
+        </div>
+
+        <div class="cards-container">
+            <a href="Abacus tool/index.html" class="tool-card">
+                <div class="card-icon">🧮</div>
+                <h2>Abacus Simulator</h2>
+                <p>Master mental math with our interactive, high-precision Soroban abacus simulator. Features realistic 3D beads and sound effects.</p>
+            </a>
+
+            <a href="flags/index.html" class="tool-card">
+                <div class="card-icon">🌍</div>
+                <h2>World Flags</h2>
+                <p>Discover countries around the globe with our futuristic, anti-gravity flag flashcards. Perfect for geographic learning.</p>
+            </a>
+        </div>
+    </main>
+
+    <!-- Brainskool Shared Footer -->
+    <footer class="bs-footer">
+        <div class="bs-footer-grid">
+            <div class="bs-footer-col">
+                <h3>About Us</h3>
+                <p style="color: #475569; line-height: 1.6; font-size: 0.95rem;">Brain Skool is a professionally managed institute that focuses on building and nurturing talent. We offer a research-based scientifically designed holistic course curriculum that enables a child to imagine and innovate.</p>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Courses</h3>
+                <ul>
+                    <li><a href="https://brainskool.in/vedic-math-classes/">Vedic Math</a></li>
+                    <li><a href="https://brainskool.in/abacus-classes/">Abacus</a></li>
+                    <li><a href="https://brainskool.in/memory-science-classes/">Memory Science</a></li>
+                    <li><a href="https://brainskool.in/coding-classes/">Coding</a></li>
+                    <li><a href="https://brainskool.in/robotics-classes/">Robotics</a></li>
+                </ul>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="https://brainskool.in/about-us/">About Us</a></li>
+                    <li><a href="https://brainskool.in/student-enquiry-form/">Student Form</a></li>
+                    <li><a href="https://brainskool.in/franchise/">Franchise Enquiry</a></li>
+                    <li><a href="https://brainskool.in/contact-us/">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Connect With Us</h3>
+                <ul>
+                    <li>📞 +91-8094642826</li>
+                    <li>✉️ info@brainskool.in</li>
+                    <li>📍 Jaipur, Rajasthan</li>
+                </ul>
+            </div>
+        </div>
+        <div class="bs-footer-bottom">
+            Copyright &copy; BrainSkool. All rights reserved
+        </div>
+    </footer>
+
+    <!-- Auth Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            
+            if (token && userStr) {
+                const user = JSON.parse(userStr);
+                const authLinks = document.getElementById('authLinks');
+                
+                let linksHtml = '';
+                if (user.role === 'admin') {
+                    linksHtml += `<a href="/admin.html" style="font-weight: 600; color: #10b981;">Admin Panel</a>`;
+                }
+                
+                linksHtml += `
+                    <span style="font-weight: 600; margin-left: 1rem;">Hello, ${user.username}</span>
+                    <a href="#" id="logoutBtn" style="font-weight: 600; color: #ef4444; margin-left: 1rem;">Logout</a>
+                `;
+                
+                authLinks.innerHTML = linksHtml;
+
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard – Brainskool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Auth guard: only admins allowed -->
+    <script>
+        (function () {
+            const t = localStorage.getItem('token');
+            const u = localStorage.getItem('user');
+            if (!t || !u || JSON.parse(u).role !== 'admin') {
+                window.location.href = '/admin-login.html';
+            }
+        })();
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #0f172a;
+            --surface:  #1e293b;
+            --border:   rgba(255,255,255,0.07);
+            --text:     #f1f5f9;
+            --muted:    #64748b;
+            --accent:   #3b82f6;
+            --green:    #10b981;
+            --red:      #ef4444;
+            --yellow:   #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ── Sidebar ─────────────────────────────────────── */
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            gap: 0.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .sidebar-logo {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo img {
+            height: 36px;
+            filter: brightness(0) invert(1);
+            opacity: 0.85;
+        }
+
+        .sidebar-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0.75rem 0 0.25rem 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            color: var(--muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            font-size: 0.95rem;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+        }
+
+        .nav-item.active { color: var(--accent); }
+
+        .nav-item .icon { font-size: 1.2rem; width: 24px; text-align: center; }
+
+        .sidebar-spacer { flex: 1; }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            color: #fca5a5;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(239,68,68,0.2);
+            background: rgba(239,68,68,0.08);
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover { background: rgba(239,68,68,0.18); }
+
+        /* ── Main ────────────────────────────────────────── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2.5rem;
+        }
+
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+        }
+
+        .page-sub {
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+
+        /* ── Stats ───────────────────────────────────────── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .stat-card .label {
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .val {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* ── Card ────────────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        /* ── Create User Form ────────────────────────────── */
+        .create-form {
+            padding: 1.75rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .field label {
+            display: block;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .field input, .field select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .field input::placeholder { color: #334155; }
+
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(59,130,246,0.07);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+
+        .field select option { background: #1e293b; }
+
+        .btn-create {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+        }
+
+        .form-msg {
+            margin: 0 1.75rem 1.25rem;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .form-msg.success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+        .form-msg.error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
+
+        /* ── Users Table ─────────────────────────────────── */
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            padding: 0.85rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 0.75rem;
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 0.25rem 0.7rem;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-admin { background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .badge-user  { background: rgba(59,130,246,0.15); color: #93c5fd; }
+
+        .action-row { display: flex; gap: 0.5rem; align-items: center; }
+
+        .btn-role {
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .btn-role:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+        .btn-del {
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(239,68,68,0.25);
+            background: rgba(239,68,68,0.08);
+            color: #fca5a5;
+            transition: all 0.2s;
+        }
+
+        .btn-del:hover { background: rgba(239,68,68,0.2); }
+
+        /* ── Toast ───────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.85rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 999;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { background: #065f46; color: #6ee7b7; border: 1px solid #10b981; }
+        .toast.error   { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+
+        @keyframes slideIn  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .create-form { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────── -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img src="https://brainskool.in/wp-content/uploads/2022/11/bs-logo-e1669098799830-2048x503-1.png" alt="Brainskool">
+    </div>
+
+    <div class="sidebar-label">Menu</div>
+    <button class="nav-item active" onclick="switchPage('overview', this)">
+        <span class="icon">📊</span> Overview
+    </button>
+    <button class="nav-item" onclick="switchPage('users', this)">
+        <span class="icon">👥</span> Manage Users
+    </button>
+    <button class="nav-item" onclick="switchPage('create', this)">
+        <span class="icon">➕</span> Create User
+    </button>
+
+    <div class="sidebar-label">Links</div>
+    <button class="nav-item" onclick="window.open('/', '_blank')">
+        <span class="icon">🌐</span> View Site
+    </button>
+
+    <div class="sidebar-spacer"></div>
+
+    <div style="padding: 0 0 1rem; font-size: 0.8rem; color: var(--muted);">
+        Logged in as <strong id="sidebarUser" style="color:#f1f5f9"></strong>
+    </div>
+    <button class="logout-btn" id="logoutBtn">
+        <span>🚪</span> Logout
+    </button>
+</aside>
+
+<!-- ── Main Content ───────────────────────────────────────────── -->
+<main class="main">
+
+    <!-- OVERVIEW PAGE -->
+    <div class="page active" id="page-overview">
+        <div class="page-title">Dashboard Overview</div>
+        <div class="page-sub">Welcome back, <span id="welcomeName"></span></div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="label">Total Users</div>
+                <div class="val" id="stat-total">–</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Admins</div>
+                <div class="val" id="stat-admins">–</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Regular Users</div>
+                <div class="val" id="stat-users">–</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">DB Status</div>
+                <div class="val" style="color:var(--green); font-size:1.4rem;">● Online</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Recent Users</h2></div>
+            <table>
+                <thead><tr><th>User</th><th>Role</th><th>Joined</th></tr></thead>
+                <tbody id="recentBody"><tr><td colspan="3" style="color:var(--muted);padding:2rem;text-align:center">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MANAGE USERS PAGE -->
+    <div class="page" id="page-users">
+        <div class="page-title">Manage Users</div>
+        <div class="page-sub">Add, remove, or change user roles.</div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>All Users</h2>
+                <span id="userCount" style="color:var(--muted); font-size:0.85rem;"></span>
+            </div>
+            <table>
+                <thead><tr><th>#</th><th>Username</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+                <tbody id="usersBody"><tr><td colspan="5" style="color:var(--muted);padding:2rem;text-align:center">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CREATE USER PAGE -->
+    <div class="page" id="page-create">
+        <div class="page-title">Create New User</div>
+        <div class="page-sub">Add a student or admin account manually.</div>
+
+        <div class="card">
+            <div class="card-header"><h2>New User Details</h2></div>
+            <div class="create-form">
+                <div class="field">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" placeholder="e.g. john_doe">
+                </div>
+                <div class="field">
+                    <label for="newPassword">Password</label>
+                    <input type="password" id="newPassword" placeholder="Set a password">
+                </div>
+                <div class="field">
+                    <label for="newRole">Role</label>
+                    <select id="newRole">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button class="btn-create" id="createBtn" onclick="createUser()">Create User</button>
+            </div>
+            <div class="form-msg" id="formMsg"></div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    /* ── State ────────────────────────────── */
+    const token = localStorage.getItem('token');
+    const me    = JSON.parse(localStorage.getItem('user') || '{}');
+    let allUsers = [];
+
+    /* ── Boot ─────────────────────────────── */
+    document.getElementById('sidebarUser').textContent  = me.username || '';
+    document.getElementById('welcomeName').textContent  = me.username || 'Admin';
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin-login.html';
+    });
+
+    /* ── Page switcher ────────────────────── */
+    function switchPage(name, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.getElementById(`page-${name}`).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    /* ── Fetch all users ──────────────────── */
+    async function fetchUsers() {
+        const res  = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) { logout(); return []; }
+        return res.json();
+    }
+
+    /* ── Render stats + tables ────────────── */
+    async function loadAll() {
+        allUsers = await fetchUsers();
+
+        const admins = allUsers.filter(u => u.role === 'admin').length;
+        document.getElementById('stat-total').textContent  = allUsers.length;
+        document.getElementById('stat-admins').textContent = admins;
+        document.getElementById('stat-users').textContent  = allUsers.length - admins;
+        document.getElementById('userCount').textContent   = `${allUsers.length} accounts`;
+
+        renderRecent();
+        renderAll();
+    }
+
+    function fmtDate(d) {
+        if (!d) return 'N/A';
+        return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function renderRecent() {
+        const tbody = document.getElementById('recentBody');
+        const recent = [...allUsers].reverse().slice(0, 5);
+        tbody.innerHTML = recent.map(u => `
+            <tr>
+                <td><span class="avatar">${u.username[0].toUpperCase()}</span>${u.username}</td>
+                <td><span class="badge badge-${u.role}">${u.role}</span></td>
+                <td style="color:var(--muted)">${fmtDate(u.joined)}</td>
+            </tr>
+        `).join('') || `<tr><td colspan="3" style="color:var(--muted);padding:2rem;text-align:center">No users yet</td></tr>`;
+    }
+
+    function renderAll() {
+        const tbody = document.getElementById('usersBody');
+        tbody.innerHTML = allUsers.map((u, i) => {
+            const isSelf = u._id === me.id;
+            const altRole = u.role === 'admin' ? 'user' : 'admin';
+            return `
+            <tr id="row-${u._id}">
+                <td style="color:var(--muted)">${i + 1}</td>
+                <td><span class="avatar">${u.username[0].toUpperCase()}</span>${u.username}${isSelf ? ' <span style="color:var(--accent);font-size:0.75rem;">(you)</span>' : ''}</td>
+                <td><span class="badge badge-${u.role}">${u.role}</span></td>
+                <td style="color:var(--muted)">${fmtDate(u.joined)}</td>
+                <td>
+                    <div class="action-row">
+                        ${!isSelf ? `<button class="btn-role" onclick="changeRole('${u._id}','${altRole}')">→ ${altRole}</button>` : ''}
+                        ${!isSelf ? `<button class="btn-del"  onclick="deleteUser('${u._id}')">Delete</button>` : '<span style="color:var(--muted);font-size:0.8rem;">—</span>'}
+                    </div>
+                </td>
+            </tr>`;
+        }).join('') || `<tr><td colspan="5" style="color:var(--muted);padding:2rem;text-align:center">No users</td></tr>`;
+    }
+
+    /* ── Create user ──────────────────────── */
+    async function createUser() {
+        const username = document.getElementById('newUsername').value.trim();
+        const password = document.getElementById('newPassword').value;
+        const role     = document.getElementById('newRole').value;
+        const msg      = document.getElementById('formMsg');
+        const btn      = document.getElementById('createBtn');
+
+        msg.style.display = 'none';
+        if (!username || !password) {
+            showFormMsg('Please fill in both fields.', 'error'); return;
+        }
+
+        btn.disabled = true; btn.textContent = 'Creating…';
+        try {
+            const res  = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ username, password, role })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showFormMsg(`✅ User "${data.username}" created as ${data.role}.`, 'success');
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newPassword').value = '';
+                showToast(`User "${data.username}" added!`, 'success');
+                await loadAll();
+            } else {
+                showFormMsg(data.error || 'Failed to create user.', 'error');
+            }
+        } catch { showFormMsg('Network error.', 'error'); }
+        finally { btn.disabled = false; btn.textContent = 'Create User'; }
+    }
+
+    /* ── Delete user ──────────────────────── */
+    async function deleteUser(id) {
+        const u = allUsers.find(u => u._id === id);
+        if (!confirm(`Delete user "${u?.username}"? This cannot be undone.`)) return;
+        const res = await fetch(`/api/users/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+            document.getElementById(`row-${id}`)?.remove();
+            allUsers = allUsers.filter(u => u._id !== id);
+            const admins = allUsers.filter(u => u.role === 'admin').length;
+            document.getElementById('stat-total').textContent  = allUsers.length;
+            document.getElementById('stat-admins').textContent = admins;
+            document.getElementById('stat-users').textContent  = allUsers.length - admins;
+            document.getElementById('userCount').textContent   = `${allUsers.length} accounts`;
+            showToast(`User deleted.`, 'error');
+        }
+    }
+
+    /* ── Change role ──────────────────────── */
+    async function changeRole(id, newRole) {
+        const res = await fetch(`/api/users/${id}/role`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ role: newRole })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showToast(`${data.username} is now ${data.role}.`, 'success');
+            await loadAll();
+        }
+    }
+
+    /* ── Helpers ──────────────────────────── */
+    function showFormMsg(text, type) {
+        const el = document.getElementById('formMsg');
+        el.textContent = text;
+        el.className = `form-msg ${type}`;
+        el.style.display = 'block';
+    }
+
+    function showToast(text, type) {
+        const el = document.getElementById('toast');
+        el.textContent = text;
+        el.className = `toast ${type}`;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    /* ── Init ─────────────────────────────── */
+    loadAll();
+</script>
+</body>
+</html>

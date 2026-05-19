@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Password Reset – Brainskool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            background-image:
+                radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.4) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 90% 100%, rgba(239,68,68,0.15) 0%, transparent 60%);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 440px;
+            padding: 3rem 2.5rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7);
+            animation: slideUp 0.55s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .icon-wrap {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 28px rgba(124,58,237,0.4);
+        }
+
+        h1 {
+            color: #f8fafc;
+            font-size: 1.65rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        /* Steps */
+        .steps {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .step {
+            flex: 1;
+            padding: 0.6rem;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            background: rgba(255,255,255,0.02);
+            border-right: 1px solid rgba(255,255,255,0.07);
+            transition: all 0.3s;
+        }
+
+        .step:last-child { border-right: none; }
+
+        .step.active {
+            background: rgba(124,58,237,0.18);
+            color: #c4b5fd;
+        }
+
+        .step.done {
+            background: rgba(16,185,129,0.1);
+            color: #6ee7b7;
+        }
+
+        /* Form */
+        .panel { display: none; animation: fade 0.3s ease; }
+        .panel.active { display: block; }
+
+        .field { margin-bottom: 1.25rem; }
+
+        label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.25s;
+        }
+
+        input::placeholder { color: #334155; }
+
+        input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            background: rgba(124,58,237,0.08);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+        }
+
+        .strength-bar-wrap {
+            height: 4px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 999px;
+            margin-top: 0.6rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .strength-bar {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.3s, background 0.3s;
+            width: 0%;
+        }
+
+        .strength-label {
+            font-size: 0.75rem;
+            margin-top: 0.35rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .hint {
+            color: #475569;
+            font-size: 0.78rem;
+            margin-top: 0.4rem;
+        }
+
+        .alert {
+            padding: 0.8rem 1rem;
+            border-radius: 9px;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .alert.error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.25);  color: #fca5a5; }
+        .alert.success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; }
+        .alert.info    { background: rgba(59,130,246,0.1);  border: 1px solid rgba(59,130,246,0.2);  color: #93c5fd; }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(124,58,237,0.4);
+        }
+
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            margin-top: 0.75rem;
+        }
+
+        .btn-ghost:hover { background: rgba(255,255,255,0.09); }
+
+        /* Success state */
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 28px rgba(16,185,129,0.4);
+            animation: pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .back-link a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .back-link a:hover { color: #94a3b8; text-decoration: underline; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade    { from { opacity: 0; }                              to { opacity: 1; } }
+        @keyframes pop     { from { opacity: 0; transform: scale(0.5); }       to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+<div class="card">
+
+    <div class="icon-wrap">🔑</div>
+    <h1>Admin Password Reset</h1>
+    <p class="subtitle">Enter your reset secret then set a new password.<br>Only authorised administrators can access this page.</p>
+
+    <!-- Step indicators -->
+    <div class="steps">
+        <div class="step active" id="step1-ind">1 · Verify</div>
+        <div class="step"        id="step2-ind">2 · New Password</div>
+        <div class="step"        id="step3-ind">3 · Done</div>
+    </div>
+
+    <!-- PANEL 1 – Verify reset secret -->
+    <div class="panel active" id="panel1">
+        <div class="alert info" id="p1info" style="display:block">
+            🔒 Enter the <strong>ADMIN_RESET_SECRET</strong> from your <code>.env</code> file to proceed.
+        </div>
+        <div class="alert error" id="p1error"></div>
+        <div class="field">
+            <label for="resetSecret">Reset Secret Key</label>
+            <input type="password" id="resetSecret" placeholder="Enter the secret from .env" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" id="verifyBtn" onclick="verifySecret()">Verify Secret →</button>
+    </div>
+
+    <!-- PANEL 2 – Set new password -->
+    <div class="panel" id="panel2">
+        <div class="alert error" id="p2error"></div>
+        <div class="field">
+            <label for="newPass">New Password</label>
+            <input type="password" id="newPass" placeholder="Minimum 6 characters" oninput="checkStrength(this.value)">
+            <div class="strength-bar-wrap" id="strengthWrap">
+                <div class="strength-bar" id="strengthBar"></div>
+            </div>
+            <div class="strength-label" id="strengthLabel"></div>
+        </div>
+        <div class="field">
+            <label for="confirmPass">Confirm Password</label>
+            <input type="password" id="confirmPass" placeholder="Re-enter password">
+        </div>
+        <button class="btn btn-primary" id="resetBtn" onclick="doReset()">Reset Password</button>
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+    </div>
+
+    <!-- PANEL 3 – Done -->
+    <div class="panel" id="panel3">
+        <div class="success-icon">✓</div>
+        <h1 style="margin-bottom:0.5rem">Password Updated!</h1>
+        <p class="subtitle" style="margin-bottom:1.5rem">All admin accounts have been updated with the new password. You can now log in.</p>
+        <button class="btn btn-primary" onclick="window.location.href='/admin-login.html'">Go to Admin Login →</button>
+    </div>
+
+    <div class="back-link">
+        <a href="/admin-login.html">← Back to Admin Login</a>
+    </div>
+</div>
+
+<script>
+    let verifiedSecret = '';
+
+    /* ── Step 1: verify secret ──────────────────────────── */
+    async function verifySecret() {
+        const secret = document.getElementById('resetSecret').value.trim();
+        const errEl  = document.getElementById('p1error');
+        const btn    = document.getElementById('verifyBtn');
+        errEl.style.display = 'none';
+
+        if (!secret) { showAlert('p1error', 'Please enter the reset secret.'); return; }
+
+        btn.disabled = true; btn.textContent = 'Verifying…';
+
+        // We verify by attempting a dry-run POST — if secret is wrong server returns 403
+        try {
+            const res  = await fetch('/api/admin-reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resetSecret: secret, newPassword: '__verify_only__' })
+            });
+
+            if (res.status === 403) {
+                showAlert('p1error', 'Invalid reset secret. Check your .env file.');
+            } else {
+                // Even if 400 (password too short) that means secret was accepted
+                verifiedSecret = secret;
+                goToPanel(2);
+            }
+        } catch {
+            showAlert('p1error', 'Network error. Is the server running?');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Verify Secret →';
+        }
+    }
+
+    /* ── Step 2: set new password ───────────────────────── */
+    async function doReset() {
+        const newPass     = document.getElementById('newPass').value;
+        const confirmPass = document.getElementById('confirmPass').value;
+        const btn         = document.getElementById('resetBtn');
+        document.getElementById('p2error').style.display = 'none';
+
+        if (!newPass || newPass.length < 6) { showAlert('p2error', 'Password must be at least 6 characters.'); return; }
+        if (newPass !== confirmPass)         { showAlert('p2error', 'Passwords do not match.'); return; }
+
+        btn.disabled = true; btn.textContent = 'Resetting…';
+
+        try {
+            const res  = await fetch('/api/admin-reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resetSecret: verifiedSecret, newPassword: newPass })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                goToPanel(3);
+            } else {
+                showAlert('p2error', data.error || 'Reset failed.');
+            }
+        } catch {
+            showAlert('p2error', 'Network error.');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Reset Password';
+        }
+    }
+
+    /* ── Password strength meter ────────────────────────── */
+    function checkStrength(val) {
+        const wrap  = document.getElementById('strengthWrap');
+        const bar   = document.getElementById('strengthBar');
+        const label = document.getElementById('strengthLabel');
+
+        wrap.style.display = label.style.display = val ? 'block' : 'none';
+        if (!val) return;
+
+        let score = 0;
+        if (val.length >= 6)  score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+            { pct: '20%', color: '#ef4444', text: 'Very Weak',  textColor: '#fca5a5' },
+            { pct: '40%', color: '#f97316', text: 'Weak',       textColor: '#fdba74' },
+            { pct: '60%', color: '#eab308', text: 'Fair',       textColor: '#fde047' },
+            { pct: '80%', color: '#10b981', text: 'Strong',     textColor: '#6ee7b7' },
+            { pct: '100%',color: '#10b981', text: 'Very Strong',textColor: '#6ee7b7' },
+        ];
+
+        const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+        bar.style.width      = lvl.pct;
+        bar.style.background = lvl.color;
+        label.textContent    = lvl.text;
+        label.style.color    = lvl.textColor;
+    }
+
+    /* ── Helpers ────────────────────────────────────────── */
+    function goToPanel(n) {
+        document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i + 1 === n));
+        document.querySelectorAll('.step').forEach((s, i) => {
+            s.classList.remove('active', 'done');
+            if (i + 1 < n)  s.classList.add('done');
+            if (i + 1 === n) s.classList.add('active');
+        });
+    }
+
+    function goBack() { goToPanel(1); }
+
+    function showAlert(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    /* ── Allow Enter key ───────────────────────────────── */
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const p1 = document.getElementById('panel1');
+        const p2 = document.getElementById('panel2');
+        if (p1.classList.contains('active')) verifySecret();
+        else if (p2.classList.contains('active')) doReset();
+    });
+</script>
+</body>
+</html>

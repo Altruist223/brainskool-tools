@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainskool Flag Flashcards</title>
+    <!-- Auth Check -->
+    <script>
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login.html';
+        }
+    </script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1a2235;
+            --text-color: #e2e8f0;
+            --accent-color: #38bdf8;
+            --shadow-color: rgba(56, 189, 248, 0.2);
+            --shadow-intense: rgba(56, 189, 248, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            max-width: 1200px;
+            width: 100%;
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-container {
+            width: 100%;
+            aspect-ratio: 3/2;
+            cursor: pointer;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Stagger animation delays for a more organic feel */
+        .card-container:nth-child(1) { animation-delay: 0.0s; }
+        .card-container:nth-child(2) { animation-delay: 1.2s; }
+        .card-container:nth-child(3) { animation-delay: 0.8s; }
+        .card-container:nth-child(4) { animation-delay: 2.1s; }
+        .card-container:nth-child(5) { animation-delay: 1.5s; }
+        .card-container:nth-child(6) { animation-delay: 2.7s; }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow-color), inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+
+        .card-container:hover .card {
+            box-shadow: 0 20px 40px var(--shadow-intense), inset 0 1px 1px rgba(255,255,255,0.2);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            background: rgba(26, 34, 53, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card-front {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 1.5rem;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .flag-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .shadow-element {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 20px;
+            background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.3) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            animation: pulse-shadow 6s ease-in-out infinite;
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+        .card-container:nth-child(1) .shadow-element { animation-delay: 0.0s; }
+        .card-container:nth-child(2) .shadow-element { animation-delay: 1.2s; }
+        .card-container:nth-child(3) .shadow-element { animation-delay: 0.8s; }
+        .card-container:nth-child(4) .shadow-element { animation-delay: 2.1s; }
+        .card-container:nth-child(5) .shadow-element { animation-delay: 1.5s; }
+        .card-container:nth-child(6) .shadow-element { animation-delay: 2.7s; }
+
+        @keyframes pulse-shadow {
+            0% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(-50%) scale(0.7);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 4rem;
+            z-index: 10;
+        }
+
+        .btn {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover:not(:disabled) {
+            background: rgba(56, 189, 248, 0.2);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #64748b;
+        }
+
+        .page-info {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Background decorative elements */
+        .glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56,189,248,0.05) 0%, rgba(0,0,0,0) 70%);
+            top: -200px;
+            left: -200px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-2 {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(129,140,248,0.05) 0%, rgba(0,0,0,0) 70%);
+            bottom: -300px;
+            right: -200px;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared.css">
+</head>
+<body>
+    <!-- Brainskool Shared Header -->
+    <nav class="bs-navbar-wrapper">
+        <div class="bs-topbar">
+            <div class="bs-topbar-left">
+                <span>📞 +91-8094642826</span>
+                <span>✉️ info@brainskool.in</span>
+            </div>
+            <div class="bs-topbar-right">
+                <span>📍 Jaipur, Rajasthan</span>
+            </div>
+        </div>
+        <div class="bs-header">
+            <a href="../index.html" class="bs-logo">
+                <img src="https://brainskool.in/wp-content/uploads/2022/11/bs-logo-e1669098799830-2048x503-1.png" alt="BrainSkool India">
+            </a>
+            <div class="bs-nav">
+                <a href="../index.html">Home</a>
+                <a href="https://brainskool.in/about-us/">About Us</a>
+                <a href="https://brainskool.in/">Courses</a>
+                <a href="https://brainskool.in/student-enquiry-form/">Student Form</a>
+                <a href="https://brainskool.in/franchise/">Franchise</a>
+                <a href="https://brainskool.in/gallery/">Gallery</a>
+                <a href="https://brainskool.in/contact-us/">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="glow"></div>
+        <div class="glow-2"></div>
+
+        <header>
+        <h1>Brainskool Countries Flags</h1>
+    </header>
+
+    <div class="grid-container" id="grid">
+        <!-- Cards will be injected here by JS -->
+    </div>
+
+        <div class="pagination">
+            <button id="prevBtn" class="btn" onclick="changePage(-1)">Previous</button>
+            <div id="pageInfo" class="page-info">Page 1 of 3</div>
+            <button id="nextBtn" class="btn" onclick="changePage(1)">Next</button>
+        </div>
+    </main>
+
+    <!-- Brainskool Shared Footer -->
+    <footer class="bs-footer">
+        <div class="bs-footer-grid">
+            <div class="bs-footer-col">
+                <h3>About Us</h3>
+                <p style="color: #475569; line-height: 1.6; font-size: 0.95rem;">Brain Skool is a professionally managed institute that focuses on building and nurturing talent. We offer a research-based scientifically designed holistic course curriculum that enables a child to imagine and innovate.</p>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Courses</h3>
+                <ul>
+                    <li><a href="https://brainskool.in/vedic-math-classes/">Vedic Math</a></li>
+                    <li><a href="https://brainskool.in/abacus-classes/">Abacus</a></li>
+                    <li><a href="https://brainskool.in/memory-science-classes/">Memory Science</a></li>
+                    <li><a href="https://brainskool.in/coding-classes/">Coding</a></li>
+                    <li><a href="https://brainskool.in/robotics-classes/">Robotics</a></li>
+                </ul>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="https://brainskool.in/about-us/">About Us</a></li>
+                    <li><a href="https://brainskool.in/student-enquiry-form/">Student Form</a></li>
+                    <li><a href="https://brainskool.in/franchise/">Franchise Enquiry</a></li>
+                    <li><a href="https://brainskool.in/contact-us/">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="bs-footer-col">
+                <h3>Connect With Us</h3>
+                <ul>
+                    <li>📞 +91-8094642826</li>
+                    <li>✉️ info@brainskool.in</li>
+                    <li>📍 Jaipur, Rajasthan</li>
+                </ul>
+            </div>
+        </div>
+        <div class="bs-footer-bottom">
+            Copyright &copy; BrainSkool. All rights reserved
+        </div>
+    </footer>
+
+    <script>
+        const countries = [
+            { name: "Afghanistan", flag: "🇦🇫" },
+            { name: "Albania", flag: "🇦🇱" },
+            { name: "Algeria", flag: "🇩🇿" },
+            { name: "Andorra", flag: "🇦🇩" },
+            { name: "Angola", flag: "🇦🇴" },
+            { name: "Antigua and Barbuda", flag: "🇦🇬" },
+            { name: "Argentina", flag: "🇦🇷" },
+            { name: "Armenia", flag: "🇦🇲" },
+            { name: "Australia", flag: "🇦🇺" },
+            { name: "Austria", flag: "🇦🇹" },
+            { name: "Azerbaijan", flag: "🇦🇿" },
+            { name: "Bahamas", flag: "🇧🇸" },
+            { name: "Bahrain", flag: "🇧🇭" },
+            { name: "Bangladesh", flag: "🇧🇩" },
+            { name: "Barbados", flag: "🇧🇧" },
+            { name: "Belarus", flag: "🇧🇾" },
+            { name: "Belgium", flag: "🇧🇪" },
+            { name: "Belize", flag: "🇧🇿" },
+            { name: "Benin", flag: "🇧🇯" },
+            { name: "Bhutan", flag: "🇧🇹" },
+            { name: "Bolivia", flag: "🇧🇴" },
+            { name: "Bosnia and Herzegovina", flag: "🇧🇦" },
+            { name: "Botswana", flag: "🇧🇼" },
+            { name: "Brazil", flag: "🇧🇷" },
+            { name: "Brunei", flag: "🇧🇳" },
+            { name: "Bulgaria", flag: "🇧🇬" },
+            { name: "Burkina Faso", flag: "🇧🇫" },
+            { name: "Burundi", flag: "🇧🇮" },
+            { name: "Côte d'Ivoire", flag: "🇨🇮" },
+            { name: "Cabo Verde", flag: "🇨🇻" },
+            { name: "Cambodia", flag: "🇰🇭" },
+            { name: "Cameroon", flag: "🇨🇲" },
+            { name: "Canada", flag: "🇨🇦" },
+            { name: "Central African Republic", flag: "🇨🇫" },
+            { name: "Chad", flag: "🇹🇩" },
+            { name: "Chile", flag: "🇨🇱" },
+            { name: "China", flag: "🇨🇳" },
+            { name: "Colombia", flag: "🇨🇴" },
+            { name: "Comoros", flag: "🇰🇲" },
+            { name: "Congo", flag: "🇨🇬" },
+            { name: "Costa Rica", flag: "🇨🇷" },
+            { name: "Croatia", flag: "🇭🇷" },
+            { name: "Cuba", flag: "🇨🇺" },
+            { name: "Cyprus", flag: "🇨🇾" },
+            { name: "Czechia", flag: "🇨🇿" },
+            { name: "Democratic Republic of the Congo", flag: "🇨🇩" },
+            { name: "Denmark", flag: "🇩🇰" },
+            { name: "Djibouti", flag: "🇩🇯" },
+            { name: "Dominica", flag: "🇩🇲" },
+            { name: "Dominican Republic", flag: "🇩🇴" },
+            { name: "Ecuador", flag: "🇪🇨" },
+            { name: "Egypt", flag: "🇪🇬" },
+            { name: "El Salvador", flag: "🇸🇻" },
+            { name: "Equatorial Guinea", flag: "🇬🇶" },
+            { name: "Eritrea", flag: "🇪🇷" },
+            { name: "Estonia", flag: "🇪🇪" },
+            { name: "Eswatini", flag: "🇸🇿" },
+            { name: "Ethiopia", flag: "🇪🇹" },
+            { name: "Fiji", flag: "🇫🇯" },
+            { name: "Finland", flag: "🇫🇮" },
+            { name: "France", flag: "🇫🇷" },
+            { name: "Gabon", flag: "🇬🇦" },
+            { name: "Gambia", flag: "🇬🇲" },
+            { name: "Georgia", flag: "🇬🇪" },
+            { name: "Germany", flag: "🇩🇪" },
+            { name: "Ghana", flag: "🇬🇭" },
+            { name: "Greece", flag: "🇬🇷" },
+            { name: "Grenada", flag: "🇬🇩" },
+            { name: "Guatemala", flag: "🇬🇹" },
+            { name: "Guinea", flag: "🇬🇳" },
+            { name: "Guinea-Bissau", flag: "🇬🇼" },
+            { name: "Guyana", flag: "🇬🇾" },
+            { name: "Haiti", flag: "🇭🇹" },
+            { name: "Honduras", flag: "🇭🇳" },
+            { name: "Hungary", flag: "🇭🇺" },
+            { name: "Iceland", flag: "🇮🇸" },
+            { name: "India", flag: "🇮🇳" },
+            { name: "Indonesia", flag: "🇮🇩" },
+            { name: "Iran", flag: "🇮🇷" },
+            { name: "Iraq", flag: "🇮🇶" },
+            { name: "Ireland", flag: "🇮🇪" },
+            { name: "Israel", flag: "🇮🇱" },
+            { name: "Italy", flag: "🇮🇹" },
+            { name: "Jamaica", flag: "🇯🇲" },
+            { name: "Japan", flag: "🇯🇵" },
+            { name: "Jordan", flag: "🇯🇴" },
+            { name: "Kazakhstan", flag: "🇰🇿" },
+            { name: "Kenya", flag: "🇰🇪" },
+            { name: "Kiribati", flag: "🇰🇮" },
+            { name: "Kuwait", flag: "🇰🇼" },
+            { name: "Kyrgyzstan", flag: "🇰🇬" },
+            { name: "Laos", flag: "🇱🇦" },
+            { name: "Latvia", flag: "🇱🇻" },
+            { name: "Lebanon", flag: "🇱🇧" },
+            { name: "Lesotho", flag: "🇱🇸" },
+            { name: "Liberia", flag: "🇱🇷" },
+            { name: "Libya", flag: "🇱🇾" },
+            { name: "Liechtenstein", flag: "🇱🇮" },
+            { name: "Lithuania", flag: "🇱🇹" },
+            { name: "Luxembourg", flag: "🇱🇺" },
+            { name: "Madagascar", flag: "🇲🇬" },
+            { name: "Malawi", flag: "🇲🇼" },
+            { name: "Malaysia", flag: "🇲🇾" },
+            { name: "Maldives", flag: "🇲🇻" },
+            { name: "Mali", flag: "🇲🇱" },
+            { name: "Malta", flag: "🇲🇹" },
+            { name: "Marshall Islands", flag: "🇲🇭" },
+            { name: "Mauritania", flag: "🇲🇷" },
+            { name: "Mauritius", flag: "🇲🇺" },
+            { name: "Mexico", flag: "🇲🇽" },
+            { name: "Micronesia", flag: "🇫🇲" },
+            { name: "Moldova", flag: "🇲🇩" },
+            { name: "Monaco", flag: "🇲🇨" },
+            { name: "Mongolia", flag: "🇲🇳" },
+            { name: "Montenegro", flag: "🇲🇪" },
+            { name: "Morocco", flag: "🇲🇦" },
+            { name: "Mozambique", flag: "🇲🇿" },
+            { name: "Myanmar", flag: "🇲🇲" },
+            { name: "Namibia", flag: "🇳🇦" },
+            { name: "Nauru", flag: "🇳🇷" },
+            { name: "Nepal", flag: "🇳🇵" },
+            { name: "Netherlands", flag: "🇳🇱" },
+            { name: "New Zealand", flag: "🇳🇿" },
+            { name: "Nicaragua", flag: "🇳🇮" },
+            { name: "Niger", flag: "🇳🇪" },
+            { name: "Nigeria", flag: "🇳🇬" },
+            { name: "North Korea", flag: "🇰🇵" },
+            { name: "North Macedonia", flag: "🇲🇰" },
+            { name: "Norway", flag: "🇳🇴" },
+            { name: "Oman", flag: "🇴🇲" },
+            { name: "Pakistan", flag: "🇵🇰" },
+            { name: "Palau", flag: "🇵🇼" },
+            { name: "Palestine State", flag: "🇵🇸" },
+            { name: "Panama", flag: "🇵🇦" },
+            { name: "Papua New Guinea", flag: "🇵🇬" },
+            { name: "Paraguay", flag: "🇵🇾" },
+            { name: "Peru", flag: "🇵🇪" },
+            { name: "Philippines", flag: "🇵🇭" },
+            { name: "Poland", flag: "🇵🇱" },
+            { name: "Portugal", flag: "🇵🇹" },
+            { name: "Qatar", flag: "🇶🇦" },
+            { name: "Romania", flag: "🇷🇴" },
+            { name: "Russia", flag: "🇷🇺" },
+            { name: "Rwanda", flag: "🇷🇼" },
+            { name: "Saint Kitts and Nevis", flag: "🇰🇳" },
+            { name: "Saint Lucia", flag: "🇱🇨" },
+            { name: "Saint Vincent and the Grenadines", flag: "🇻🇨" },
+            { name: "Samoa", flag: "🇼🇸" },
+            { name: "San Marino", flag: "🇸🇲" },
+            { name: "Sao Tome and Principe", flag: "🇸🇹" },
+            { name: "Saudi Arabia", flag: "🇸🇦" },
+            { name: "Senegal", flag: "🇸🇳" },
+            { name: "Serbia", flag: "🇷🇸" },
+            { name: "Seychelles", flag: "🇸🇨" },
+            { name: "Sierra Leone", flag: "🇸🇱" },
+            { name: "Singapore", flag: "🇸🇬" },
+            { name: "Slovakia", flag: "🇸🇰" },
+            { name: "Slovenia", flag: "🇸🇮" },
+            { name: "Solomon Islands", flag: "🇸🇧" },
+            { name: "Somalia", flag: "🇸🇴" },
+            { name: "South Africa", flag: "🇿🇦" },
+            { name: "South Korea", flag: "🇰🇷" },
+            { name: "South Sudan", flag: "🇸🇸" },
+            { name: "Spain", flag: "🇪🇸" },
+            { name: "Sri Lanka", flag: "🇱🇰" },
+            { name: "Sudan", flag: "🇸🇩" },
+            { name: "Suriname", flag: "🇸🇷" },
+            { name: "Sweden", flag: "🇸🇪" },
+            { name: "Switzerland", flag: "🇨🇭" },
+            { name: "Syria", flag: "🇸🇾" },
+            { name: "Tajikistan", flag: "🇹🇯" },
+            { name: "Tanzania", flag: "🇹🇿" },
+            { name: "Thailand", flag: "🇹🇭" },
+            { name: "Timor-Leste", flag: "🇹🇱" },
+            { name: "Togo", flag: "🇹🇬" },
+            { name: "Tonga", flag: "🇹🇴" },
+            { name: "Trinidad and Tobago", flag: "🇹🇹" },
+            { name: "Tunisia", flag: "🇹🇳" },
+            { name: "Turkey", flag: "🇹🇷" },
+            { name: "Turkmenistan", flag: "🇹🇲" },
+            { name: "Tuvalu", flag: "🇹🇻" },
+            { name: "Uganda", flag: "🇺🇬" },
+            { name: "Ukraine", flag: "🇺🇦" },
+            { name: "United Arab Emirates", flag: "🇦🇪" },
+            { name: "United Kingdom", flag: "🇬🇧" },
+            { name: "United States", flag: "🇺🇸" },
+            { name: "Uruguay", flag: "🇺🇾" },
+            { name: "Uzbekistan", flag: "🇺🇿" },
+            { name: "Vanuatu", flag: "🇻🇺" },
+            { name: "Vatican City", flag: "🇻🇦" },
+            { name: "Venezuela", flag: "🇻🇪" },
+            { name: "Vietnam", flag: "🇻🇳" },
+            { name: "Yemen", flag: "🇾🇪" },
+            { name: "Zambia", flag: "🇿🇲" },
+            { name: "Zimbabwe", flag: "🇿🇼" }
+        ];
+
+        const cardsPerPage = 6;
+        let currentPage = 1;
+        const totalPages = Math.ceil(countries.length / cardsPerPage);
+
+        const grid = document.getElementById('grid');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageInfo = document.getElementById('pageInfo');
+
+        function renderCards() {
+            grid.innerHTML = '';
+            
+            const start = (currentPage - 1) * cardsPerPage;
+            const end = start + cardsPerPage;
+            const currentCountries = countries.slice(start, end);
+
+            currentCountries.forEach((country) => {
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'card-container';
+                
+                // Convert emoji to ISO code for flagcdn
+                const isoCode = Array.from(country.flag).map(char => String.fromCharCode(char.codePointAt(0) - 127397)).join('').toLowerCase();
+                
+                cardContainer.innerHTML = `
+                    <div class="card" onclick="this.classList.toggle('flipped')">
+                        <div class="card-face card-front">
+                            <img src="https://flagcdn.com/${isoCode}.svg" class="flag-image" alt="${country.name} flag" loading="lazy">
+                        </div>
+                        <div class="card-face card-back">
+                            ${country.name}
+                        </div>
+                    </div>
+                    <div class="shadow-element"></div>
+                `;
+                
+                grid.appendChild(cardContainer);
+            });
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        }
+
+        function changePage(direction) {
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                
+                // Add a small fade effect when changing pages
+                grid.style.opacity = 0;
+                grid.style.transition = 'opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    renderCards();
+                    grid.style.opacity = 1;
+                }, 300);
+            }
+        }
+
+        // Initial render
+        renderCards();
+    </script>
+</body>
+</html>
