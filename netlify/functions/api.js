@@ -16,12 +16,12 @@ app.use(cors());
 app.use(express.json());
 
 // ─── MongoDB — cached connection (avoids reconnect on every call) ──
-let isConnected = false;
-
 async function connectDB() {
-    if (isConnected) return;
+    if (mongoose.connection.readyState >= 1) return;
+    if (!process.env.MONGO_URI) {
+        throw new Error('MONGO_URI is not defined in environment variables');
+    }
     await mongoose.connect(process.env.MONGO_URI);
-    isConnected = true;
     console.log('✅ MongoDB connected');
 }
 
@@ -36,6 +36,18 @@ const handler = serverless(app);
 exports.handler = async (event, context) => {
     // Reuse DB connection across warm invocations
     context.callbackWaitsForEmptyEventLoop = false;
-    await connectDB();
+    try {
+        await connectDB();
+    } catch (err) {
+        console.error('❌ MongoDB Connection Error:', err.message);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Database connection failed', details: err.message }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        };
+    }
     return handler(event, context);
 };
