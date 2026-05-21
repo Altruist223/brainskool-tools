@@ -17,8 +17,17 @@ const authRoutes    = require('../../routes/auth');
 const app = express();
 
 // ─── Middleware ────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle OPTIONS preflight
+app.options('*', cors());
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ─── MongoDB — cached connection (avoids reconnect on every call) ──
 async function connectDB() {
@@ -41,6 +50,18 @@ const handler = serverless(app);
 exports.handler = async (event, context) => {
     // Reuse DB connection across warm invocations
     context.callbackWaitsForEmptyEventLoop = false;
+
+    // Netlify sometimes base64-encodes the body — decode it so express.json() can parse it
+    if (event.isBase64Encoded && event.body) {
+        event.body = Buffer.from(event.body, 'base64').toString('utf8');
+        event.isBase64Encoded = false;
+    }
+
+    // Ensure Content-Type header is present for JSON bodies
+    if (event.body && !event.headers['content-type'] && !event.headers['Content-Type']) {
+        event.headers['content-type'] = 'application/json';
+    }
+
     try {
         await connectDB();
     } catch (err) {
