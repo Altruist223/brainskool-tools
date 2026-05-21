@@ -131,6 +131,17 @@ router.post('/admin-reset', async (req, res) => {
     try {
         const hashed = await bcrypt.hash(newPassword, 10);
         const result = await User.updateMany({ role: 'admin' }, { password: hashed });
+        
+        // If no admin exists in the database, create the initial one
+        if (result.matchedCount === 0) {
+            await User.create({
+                username: 'admin',
+                password: hashed,
+                role: 'admin'
+            });
+            return res.json({ message: 'Initial admin account created (username: admin)' });
+        }
+
         res.json({ message: `Password updated for ${result.modifiedCount} admin account(s)` });
     } catch (err) {
         console.error(err);
