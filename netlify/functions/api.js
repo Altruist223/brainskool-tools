@@ -31,8 +31,8 @@ async function connectDB() {
 }
 
 // ─── Routes ───────────────────────────────────────────────────
-// Mount at root "/" because Netlify already strips the /api prefix
-// via the redirect rule: /api/* → /.netlify/functions/api/:splat
+// Mount at both '/api' and '/' to be robust under different Netlify redirect scenarios
+app.use('/api', authRoutes);
 app.use('/', authRoutes);
 
 // ─── Handler ──────────────────────────────────────────────────
