@@ -35,7 +35,11 @@ async function connectDB() {
     if (!process.env.MONGO_URI) {
         throw new Error('MONGO_URI is not defined in environment variables');
     }
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+        socketTimeoutMS: 8000,
+    });
     console.log('✅ MongoDB connected');
 }
 
@@ -75,5 +79,17 @@ exports.handler = async (event, context) => {
             }
         };
     }
-    return handler(event, context);
+    try {
+        return await handler(event, context);
+    } catch (err) {
+        console.error('❌ Handler Error:', err.message);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Internal server error', details: err.message }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        };
+    }
 };

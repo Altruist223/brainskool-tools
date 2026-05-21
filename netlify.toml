@@ -2,6 +2,10 @@
   functions = "netlify/functions"
   publish   = "."
 
+[functions]
+  node_bundler = "esbuild"
+  timeout = 26
+
 # Rewrite all /api/* requests to the serverless function
 [[redirects]]
   from   = "/api/*"
