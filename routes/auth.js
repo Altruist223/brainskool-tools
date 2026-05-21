@@ -5,6 +5,35 @@ const User     = require('../models/User');
 
 const router = express.Router();
 const SECRET_KEY = process.env.JWT_SECRET;
+const mongoose = require('mongoose');
+
+/* ─── GET /api/test-db ────────────────────────────────────────────── */
+router.get('/test-db', async (req, res) => {
+    try {
+        const status = mongoose.connection.readyState;
+        const states = {
+            0: 'disconnected',
+            1: 'connected',
+            2: 'connecting',
+            3: 'disconnecting'
+        };
+        
+        let dbName = 'N/A';
+        if (status === 1) {
+            dbName = mongoose.connection.name;
+        }
+
+        res.json({
+            status: states[status] || 'unknown',
+            readyState: status,
+            uriExists: !!process.env.MONGO_URI,
+            uriPrefix: process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 15) + '...' : 'none',
+            dbName: dbName
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 /* ─── Middleware: verify JWT ─────────────────────────────────────── */
 function auth(req, res, next) {
