@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+functions/node_modules/
 
 # Environment secrets — never commit real .env
 .env
@@ -15,3 +16,10 @@ database.sqlite
 
 # Netlify local dev cache
 .netlify/
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Firebase hosting public mirror (generated, not source)
+public/

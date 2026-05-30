@@ -171,6 +171,9 @@
     </div>
 
     <script>
+        // ── API base (Netlify backend) ─────────────────────────────
+        const API_BASE = 'https://brainskooltools.netlify.app';
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -178,7 +181,7 @@
             const errorMsg = document.getElementById('errorMsg');
 
             try {
-                const res = await fetch('/api/login', {
+                const res = await fetch(`${API_BASE}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })

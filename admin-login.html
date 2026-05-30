@@ -177,6 +177,9 @@
     </div>
 
     <script>
+        // ── API base (Netlify backend) ─────────────────────────────
+        const API_BASE = 'https://brainskooltools.netlify.app';
+
         // If already logged in as admin, go straight to dashboard
         const existingToken = localStorage.getItem('token');
         const existingUser  = localStorage.getItem('user');
@@ -194,7 +197,7 @@
             btn.textContent = 'Signing in…';
 
             try {
-                const res  = await fetch('/api/login', {
+                const res  = await fetch(`${API_BASE}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

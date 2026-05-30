@@ -303,6 +303,9 @@
 </div>
 
 <script>
+    // ── API base (Netlify backend) ─────────────────────────────
+    const API_BASE = 'https://brainskooltools.netlify.app';
+
     let verifiedSecret = '';
 
     /* ── Step 1: verify secret ──────────────────────────── */
@@ -318,7 +321,7 @@
 
         // We verify by attempting a dry-run POST — if secret is wrong server returns 403
         try {
-            const res  = await fetch('/api/admin-reset', {
+            const res  = await fetch(`${API_BASE}/api/admin-reset`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ resetSecret: secret, newPassword: '__verify_only__' })
@@ -351,7 +354,7 @@
         btn.disabled = true; btn.textContent = 'Resetting…';
 
         try {
-            const res  = await fetch('/api/admin-reset', {
+            const res  = await fetch(`${API_BASE}/api/admin-reset`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ resetSecret: verifiedSecret, newPassword: newPass })

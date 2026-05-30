@@ -494,6 +494,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
+    /* ── API base (Netlify backend) ─────────────────────────── */
+    const API_BASE = 'https://brainskooltools.netlify.app';
+
     /* ── State ────────────────────────────── */
     const token = localStorage.getItem('token');
     const me    = JSON.parse(localStorage.getItem('user') || '{}');
@@ -519,7 +522,7 @@
 
     /* ── Fetch all users ──────────────────── */
     async function fetchUsers() {
-        const res  = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        const res  = await fetch(`${API_BASE}/api/users`, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) { logout(); return []; }
         return res.json();
     }
@@ -591,7 +594,7 @@
 
         btn.disabled = true; btn.textContent = 'Creating…';
         try {
-            const res  = await fetch('/api/users', {
+            const res  = await fetch(`${API_BASE}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ username, password, role })
@@ -614,7 +617,7 @@
     async function deleteUser(id) {
         const u = allUsers.find(u => u._id === id);
         if (!confirm(`Delete user "${u?.username}"? This cannot be undone.`)) return;
-        const res = await fetch(`/api/users/${id}`, {
+        const res = await fetch(`${API_BASE}/api/users/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -632,7 +635,7 @@
 
     /* ── Change role ──────────────────────── */
     async function changeRole(id, newRole) {
-        const res = await fetch(`/api/users/${id}/role`, {
+        const res = await fetch(`${API_BASE}/api/users/${id}/role`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ role: newRole })
