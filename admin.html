@@ -5,16 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard – Brainskool</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Auth guard: only admins allowed -->
-    <script>
-        (function () {
-            const t = localStorage.getItem('token');
-            const u = localStorage.getItem('user');
-            if (!t || !u || JSON.parse(u).role !== 'admin') {
-                window.location.href = '/admin-login.html';
-            }
-        })();
-    </script>
+    <!-- Auth guard handled by Firebase onAuthStateChanged below -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -494,23 +487,44 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    /* ── API base (Netlify backend) ─────────────────────────── */
     const API_BASE = 'https://brainskooltools.netlify.app';
 
-    /* ── State ────────────────────────────── */
-    const token = localStorage.getItem('token');
-    const me    = JSON.parse(localStorage.getItem('user') || '{}');
+    firebase.initializeApp({
+        apiKey: "AIzaSyAfyEmuXFm81a3Vu9qDuz5A2mYRiOonQvY",
+        authDomain: "brainskool-tools-app.firebaseapp.com",
+        projectId: "brainskool-tools-app",
+        appId: "1:1027616261885:web:7ac7f9e7f55c7fcbd46094"
+    });
+    const fbAuth = firebase.auth();
+
+    let currentToken = null;
+    let me = {};
     let allUsers = [];
 
-    /* ── Boot ─────────────────────────────── */
-    document.getElementById('sidebarUser').textContent  = me.username || '';
-    document.getElementById('welcomeName').textContent  = me.username || 'Admin';
+    // Auth guard — redirect if not logged in as admin
+    fbAuth.onAuthStateChanged(async (user) => {
+        if (!user) { window.location.href = '/admin-login.html'; return; }
+        currentToken = await user.getIdToken(true);
+        const stored = JSON.parse(localStorage.getItem('fbUser') || '{}');
+        if (stored.role !== 'admin') { window.location.href = '/admin-login.html'; return; }
+        me = stored;
+        document.getElementById('sidebarUser').textContent = me.username || '';
+        document.getElementById('welcomeName').textContent = me.username || 'Admin';
+        loadAll();
+    });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await fbAuth.signOut();
+        localStorage.removeItem('fbUser');
+        localStorage.removeItem('fbToken');
         window.location.href = '/admin-login.html';
     });
+
+    async function getToken() {
+        const user = fbAuth.currentUser;
+        if (user) currentToken = await user.getIdToken();
+        return currentToken;
+    }
 
     /* ── Page switcher ────────────────────── */
     function switchPage(name, btn) {
@@ -522,21 +536,20 @@
 
     /* ── Fetch all users ──────────────────── */
     async function fetchUsers() {
-        const res  = await fetch(`${API_BASE}/api/users`, { headers: { Authorization: `Bearer ${token}` } });
-        if (!res.ok) { logout(); return []; }
+        const token = await getToken();
+        const res = await fetch(`${API_BASE}/api/users`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) { await fbAuth.signOut(); window.location.href = '/admin-login.html'; return []; }
         return res.json();
     }
 
     /* ── Render stats + tables ────────────── */
     async function loadAll() {
         allUsers = await fetchUsers();
-
         const admins = allUsers.filter(u => u.role === 'admin').length;
         document.getElementById('stat-total').textContent  = allUsers.length;
         document.getElementById('stat-admins').textContent = admins;
         document.getElementById('stat-users').textContent  = allUsers.length - admins;
         document.getElementById('userCount').textContent   = `${allUsers.length} accounts`;
-
         renderRecent();
         renderAll();
     }
@@ -561,7 +574,7 @@
     function renderAll() {
         const tbody = document.getElementById('usersBody');
         tbody.innerHTML = allUsers.map((u, i) => {
-            const isSelf = u._id === me.id;
+            const isSelf  = u._id === me.id;
             const altRole = u.role === 'admin' ? 'user' : 'admin';
             return `
             <tr id="row-${u._id}">
@@ -572,7 +585,7 @@
                 <td>
                     <div class="action-row">
                         ${!isSelf ? `<button class="btn-role" onclick="changeRole('${u._id}','${altRole}')">→ ${altRole}</button>` : ''}
-                        ${!isSelf ? `<button class="btn-del"  onclick="deleteUser('${u._id}')">Delete</button>` : '<span style="color:var(--muted);font-size:0.8rem;">—</span>'}
+                        ${!isSelf ? `<button class="btn-del" onclick="deleteUser('${u._id}')">Delete</button>` : '<span style="color:var(--muted);font-size:0.8rem;">—</span>'}
                     </div>
                 </td>
             </tr>`;
@@ -586,14 +599,11 @@
         const role     = document.getElementById('newRole').value;
         const msg      = document.getElementById('formMsg');
         const btn      = document.getElementById('createBtn');
-
         msg.style.display = 'none';
-        if (!username || !password) {
-            showFormMsg('Please fill in both fields.', 'error'); return;
-        }
-
+        if (!username || !password) { showFormMsg('Please fill in both fields.', 'error'); return; }
         btn.disabled = true; btn.textContent = 'Creating…';
         try {
+            const token = await getToken();
             const res  = await fetch(`${API_BASE}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -606,9 +616,7 @@
                 document.getElementById('newPassword').value = '';
                 showToast(`User "${data.username}" added!`, 'success');
                 await loadAll();
-            } else {
-                showFormMsg(data.error || 'Failed to create user.', 'error');
-            }
+            } else { showFormMsg(data.error || 'Failed to create user.', 'error'); }
         } catch { showFormMsg('Network error.', 'error'); }
         finally { btn.disabled = false; btn.textContent = 'Create User'; }
     }
@@ -617,9 +625,9 @@
     async function deleteUser(id) {
         const u = allUsers.find(u => u._id === id);
         if (!confirm(`Delete user "${u?.username}"? This cannot be undone.`)) return;
+        const token = await getToken();
         const res = await fetch(`${API_BASE}/api/users/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
+            method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
             document.getElementById(`row-${id}`)?.remove();
@@ -629,42 +637,33 @@
             document.getElementById('stat-admins').textContent = admins;
             document.getElementById('stat-users').textContent  = allUsers.length - admins;
             document.getElementById('userCount').textContent   = `${allUsers.length} accounts`;
-            showToast(`User deleted.`, 'error');
+            showToast('User deleted.', 'error');
         }
     }
 
     /* ── Change role ──────────────────────── */
     async function changeRole(id, newRole) {
+        const token = await getToken();
         const res = await fetch(`${API_BASE}/api/users/${id}/role`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ role: newRole })
         });
         const data = await res.json();
-        if (res.ok) {
-            showToast(`${data.username} is now ${data.role}.`, 'success');
-            await loadAll();
-        }
+        if (res.ok) { showToast(`${data.username} is now ${data.role}.`, 'success'); await loadAll(); }
     }
 
     /* ── Helpers ──────────────────────────── */
     function showFormMsg(text, type) {
         const el = document.getElementById('formMsg');
-        el.textContent = text;
-        el.className = `form-msg ${type}`;
-        el.style.display = 'block';
+        el.textContent = text; el.className = `form-msg ${type}`; el.style.display = 'block';
     }
-
     function showToast(text, type) {
         const el = document.getElementById('toast');
-        el.textContent = text;
-        el.className = `toast ${type}`;
-        el.style.display = 'block';
+        el.textContent = text; el.className = `toast ${type}`; el.style.display = 'block';
         setTimeout(() => { el.style.display = 'none'; }, 3000);
     }
-
-    /* ── Init ─────────────────────────────── */
-    loadAll();
 </script>
+
 </body>
 </html>
